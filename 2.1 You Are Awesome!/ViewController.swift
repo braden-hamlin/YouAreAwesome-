@@ -11,6 +11,7 @@ import AVFoundation
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var soundSwitch: UISwitch!
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var awesomeImageView: UIImageView!
     var awesomePlayer = AVAudioPlayer()
@@ -32,13 +33,13 @@ class ViewController: UIViewController {
         return newIndex
     }
     
-    func playSound(soundName: String){
+    func playSound(soundName: String, audioPlayer: inout AVAudioPlayer){
         //can we load in file soundName
         if let sound = NSDataAsset(name: soundName){
             //check if sound.data is a sound file
             do {
-                try awesomePlayer = AVAudioPlayer(data: sound.data)
-                awesomePlayer.play()
+                try audioPlayer = AVAudioPlayer(data: sound.data)
+                audioPlayer.play()
             } catch {
                 // if sound.data is not a valid audio file.
                 print("ERROR: data in \(sound)")
@@ -48,7 +49,15 @@ class ViewController: UIViewController {
             print("ERROR: file \(soundName) didn't load")
         }
     }
-
+    
+    
+    @IBAction func soundSwitchPressed(_ sender: UISwitch) {
+        if soundSwitch.isOn == false && soundIndex != -1{
+               awesomePlayer.stop()
+        }
+        
+    }
+    
     @IBAction func showMessagePressed(_ sender: UIButton) {
        
         let messages = ["You are Awesome!",
@@ -67,11 +76,18 @@ class ViewController: UIViewController {
         imageIndex = nonRepeatingRandom(lastNumber: imageIndex, maxValue: numberOfImages)
         awesomeImageView.image = UIImage(named: "image\(imageIndex)")
         
-        //Get a random number to use in our sound file
-        soundIndex = nonRepeatingRandom(lastNumber: soundIndex, maxValue: numberOfSounds)
-       let soundName =  "sound\(soundIndex)"
-        playSound(soundName: soundName)
-        
+   
+        //if soundSwitch.isOn == true{
+        if soundSwitch.isOn {
+            
+            //Get a random number to use in our sound file
+            soundIndex = nonRepeatingRandom(lastNumber: soundIndex, maxValue: numberOfSounds)
+            
+            let soundName =  "sound\(soundIndex)"
+            
+          playSound(soundName: soundName, audioPlayer: &awesomePlayer)
+        }
+       
         
     }
 }
